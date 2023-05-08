@@ -14,29 +14,7 @@ class Menu:
     self._record: int = record
 
   def draw(self, quit):
-    for event in pygame.event.get():
-      if event.type == pygame.QUIT:
-        quit()
-        return
-      elif event.type == pygame.KEYDOWN:
-        active_index = self._find_active_button_index()
-        if (event.key == pygame.K_UP or event.key == pygame.K_w):
-          self._sound.play_sound(SWITCH_BUTTON)
-          new_index: int = active_index - 1
-          if new_index == -1:
-            new_index = len(self._buttons) - 1
-          self._switch_active_button(new_index)
-        elif (event.key == pygame.K_DOWN or event.key == pygame.K_s):
-          self._sound.play_sound(SWITCH_BUTTON)
-          new_index: int = active_index + 1
-          if new_index == len(self._buttons):
-            new_index = 0
-          self._switch_active_button(new_index)
-        elif event.key == pygame.K_RETURN:
-          active_button = self._buttons[active_index]
-          if active_button.action != None:
-            self._sound.play_sound(ENTER_BUTTON)
-            active_button.action()
+    self._event_handler(quit)
 
     self._screen.fill(BG_COLOR)
     self._draw_title()
@@ -53,6 +31,33 @@ class Menu:
 
   def update_record(self, record: int):
     self._record = record
+
+  def _event_handler(self, quit):
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        quit()
+      elif event.type == pygame.KEYDOWN:
+        active_index = self._find_active_button_index()
+
+        if (event.key == pygame.K_UP or event.key == pygame.K_w):
+          self._sound.play_sound(SWITCH_BUTTON)
+          new_index: int = active_index - 1
+
+          if new_index == -1:
+            new_index = len(self._buttons) - 1
+          self._switch_active_button(new_index)
+        elif (event.key == pygame.K_DOWN or event.key == pygame.K_s):
+          self._sound.play_sound(SWITCH_BUTTON)
+          new_index: int = active_index + 1
+
+          if new_index == len(self._buttons):
+            new_index = 0
+          self._switch_active_button(new_index)
+        elif event.key == pygame.K_RETURN:
+          active_button = self._buttons[active_index]
+          if active_button.action != None:
+            self._sound.play_sound(ENTER_BUTTON)
+            active_button.action()
 
   def _switch_active_button(self, index_active: int = 0):
     for i in range(len(self._buttons)):
