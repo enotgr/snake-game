@@ -21,7 +21,7 @@ class Food:
   def draw(self, surface):
     pygame.draw.rect(surface, self._color, (self.position[0], self.position[1], CELL_SIZE, CELL_SIZE))
 
-  def _load_theme_name(self):
+  def _load_theme_name(self) -> str:
     theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
     if theme_name:
       return theme_name

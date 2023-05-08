@@ -74,7 +74,7 @@ class Menu:
       else:
         self._buttons[i].deselect()
 
-  def _find_active_button_index(self):
+  def _find_active_button_index(self) -> int:
     for i in range(len(self._buttons)):
       if self._buttons[i].active:
         return i
@@ -100,7 +100,7 @@ class Menu:
     text_surf = font.render(f'Theme: {theme_title_name}', True, self._theme["BORDER_COLOR"])
     self._screen.blit(text_surf, (20, WINDOW_HEIGHT - 34))
 
-  def _load_theme_name(self):
+  def _load_theme_name(self) -> str:
     theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
     if theme_name:
       return theme_name

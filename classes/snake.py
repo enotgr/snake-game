@@ -60,7 +60,7 @@ class Snake:
       or self._body[0] in self._body[1:]):
       self.is_alive = False
 
-  def _load_theme_name(self):
+  def _load_theme_name(self) -> str:
     theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
     if theme_name:
       return theme_name

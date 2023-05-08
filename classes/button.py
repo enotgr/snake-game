@@ -46,7 +46,7 @@ class Button():
   def update_theme(self):
     self._theme_name = self._load_theme_name()
 
-  def _load_theme_name(self):
+  def _load_theme_name(self) -> str:
     theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
     if theme_name:
       return theme_name
