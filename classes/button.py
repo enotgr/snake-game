@@ -1,6 +1,7 @@
 import pygame
 
-from consts import SNAKE_COLOR, FOOD_COLOR, TEXT_COLOR, RETRO_FONT_PATH
+from consts import RETRO_FONT_PATH, THEMES, SAVED_THEME_PATH
+from services import file_service
 
 class Button():
   def __init__(self, text: str, x: int, y: int, width: int, height: int, active: bool = False, action = None):
@@ -13,16 +14,18 @@ class Button():
     self._width: int = width
     self._height: int = height
 
+    self._theme_name: str = self._load_theme_name()
+
   def draw(self, surface: pygame.Surface):
     button_surface = pygame.Surface((self._width, self._height))
 
     if self.active:
-      button_surface.fill(SNAKE_COLOR)
+      button_surface.fill(THEMES[self._theme_name]["SNAKE_COLOR"])
     else:
-      button_surface.fill(FOOD_COLOR)
+      button_surface.fill(THEMES[self._theme_name]["FOOD_COLOR"])
 
     small_text = pygame.font.Font(RETRO_FONT_PATH, 12)
-    text_surface = small_text.render(self._text, True, TEXT_COLOR)
+    text_surface = small_text.render(self._text, True, THEMES[self._theme_name]["TEXT_COLOR"])
     text_rect = text_surface.get_rect()
     text_rect.center = (self._width / 2, self._height / 2)
     button_surface.blit(text_surface, text_rect)
@@ -39,3 +42,12 @@ class Button():
 
   def set_action(self, action):
     self.action = action
+
+  def update_theme(self):
+    self._theme_name = self._load_theme_name()
+
+  def _load_theme_name(self):
+    theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
+    if theme_name:
+      return theme_name
+    return list(THEMES.keys())[0]

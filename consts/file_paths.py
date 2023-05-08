@@ -11,4 +11,6 @@ SWITCH_BUTTON = f'{SOUNDS_PATH}/switch.mp3'
 ENTER_BUTTON = f'{SOUNDS_PATH}/enter.mp3'
 
 RETRO_FONT_PATH = f'{FONTS_PATH}/PressStart2P-Regular.ttf'
+
 LAST_SAVE_PATH = f'{SAVE_PATH}/last_save.txt'
+SAVED_THEME_PATH = f'{SAVE_PATH}/theme.txt'
