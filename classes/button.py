@@ -3,7 +3,7 @@ import pygame
 from consts import RETRO_FONT_PATH, THEMES, SAVED_THEME_PATH
 from services import file_service
 
-class Button():
+class Button:
   def __init__(self, text: str, x: int, y: int, width: int, height: int, active: bool = False, action = None):
     self.active: bool = active
     self.action = action
@@ -20,12 +20,12 @@ class Button():
     button_surface = pygame.Surface((self._width, self._height))
 
     if self.active:
-      button_surface.fill(THEMES[self._theme_name]["SNAKE_COLOR"])
+      button_surface.fill(THEMES[self._theme_name]['SNAKE_COLOR'])
     else:
-      button_surface.fill(THEMES[self._theme_name]["FOOD_COLOR"])
+      button_surface.fill(THEMES[self._theme_name]['APPLE_COLOR'])
 
     small_text = pygame.font.Font(RETRO_FONT_PATH, 12)
-    text_surface = small_text.render(self._text, True, THEMES[self._theme_name]["TEXT_COLOR"])
+    text_surface = small_text.render(self._text, True, THEMES[self._theme_name]['TEXT_COLOR'])
     text_rect = text_surface.get_rect()
     text_rect.center = (self._width / 2, self._height / 2)
     button_surface.blit(text_surface, text_rect)

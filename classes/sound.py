@@ -1,9 +1,9 @@
 import pygame
 
-from consts import BACKGROUND_TRACK
+from consts import SOUNDS_PATH
 
 class Sound():
-  def __init__(self, track_path: str = BACKGROUND_TRACK):
+  def __init__(self, track_path: str = f'{SOUNDS_PATH}/standart.mp3'):
     self.is_sound: bool = True
 
     self._load_track(track_path)

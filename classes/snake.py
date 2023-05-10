@@ -41,7 +41,7 @@ class Snake:
 
   def draw(self, surface):
     for pos in self._body:
-      pygame.draw.rect(surface, THEMES[self._theme_name]["SNAKE_COLOR"], (pos[0], pos[1], CELL_SIZE, CELL_SIZE))
+      pygame.draw.rect(surface, THEMES[self._theme_name]['SNAKE_COLOR'], (pos[0], pos[1], CELL_SIZE, CELL_SIZE))
 
   def check_food(self, food_position: tuple[int, int]) -> bool:
     if self._body[0] == food_position:

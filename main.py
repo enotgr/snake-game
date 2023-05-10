@@ -1,8 +1,8 @@
 import pygame
 
 from services import file_service
-from classes import Snake, Food, Menu, Button, Sound
-from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, BACKGROUND_TRACK, FAIL_SOUND, THEMES, SAVED_THEME_PATH
+from classes import Snake, Apple, Menu, Button, Sound, Melon
+from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH
 
 def quit():
   pygame.mixer.music.stop()
@@ -44,13 +44,13 @@ def switch_theme(buttons: list[Button], update_menu_theme):
 
 def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int):
   font = pygame.font.Font(RETRO_FONT_PATH, 16)
-  text = font.render(f'Score: {score} / Record: {record}', True, THEMES[theme_name]["TEXT_COLOR"])
-  surface.fill(THEMES[theme_name]["SCORE_BG_COLOR"])
+  text = font.render(f'Score: {score} / Record: {record}', True, THEMES[theme_name]['TEXT_COLOR'])
+  surface.fill(THEMES[theme_name]['SCORE_BG_COLOR'])
   surface.blit(text, (16, 16))
 
 def draw_game_over(surface: pygame.Surface, theme_name: str):
   font = pygame.font.Font(RETRO_FONT_PATH, 36)
-  text_surf = font.render('Game Over', True, THEMES[theme_name]["TEXT_COLOR"])
+  text_surf = font.render('Game Over', True, THEMES[theme_name]['TEXT_COLOR'])
   text_rect = text_surf.get_rect()
   text_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4)
   surface.blit(text_surf, text_rect)
@@ -70,15 +70,16 @@ def game_event_handler(snake: Snake):
     elif event.type == pygame.KEYDOWN:
       snake.set_direction(event.key)
 
-def draw_game(screen: pygame.Surface, game_surface: pygame.Surface, score_surface: pygame.Surface, theme_name: str, snake: Snake, food: Food, score: int, record: int):
-  game_surface.fill(THEMES[theme_name]["BG_COLOR"])
+def draw_game(screen: pygame.Surface, game_surface: pygame.Surface, score_surface: pygame.Surface, theme_name: str, snake: Snake, apple: Apple, melon: Melon, score: int, record: int):
+  game_surface.fill(THEMES[theme_name]['BG_COLOR'])
   snake.draw(game_surface)
-  food.draw(game_surface)
+  apple.draw(game_surface)
+  melon.draw(game_surface)
   draw_score(score_surface, theme_name, score, record)
   screen.blit(game_surface, (0, 0))
   screen.blit(score_surface, (0, WINDOW_HEIGHT - SCORE_SURFACE_HEIGHT))
   border_rect = pygame.Rect(0, GAME_SURFACE_HEIGHT, WINDOW_WIDTH, BORDER_WIDTH)
-  pygame.draw.rect(screen, THEMES[theme_name]["BORDER_COLOR"], border_rect)
+  pygame.draw.rect(screen, THEMES[theme_name]['BORDER_COLOR'], border_rect)
   pygame.display.flip()
 
 def on_game_over(screen: pygame.Surface, theme_name: str, clock: pygame.time.Clock, sound: Sound):
@@ -89,34 +90,46 @@ def on_game_over(screen: pygame.Surface, theme_name: str, clock: pygame.time.Clo
 
   if is_sound:
     sound.sound_off()
-  clock.tick(0.4)
+  clock.tick(0.5)
   if is_sound:
     sound.sound_on()
   sound.change_music(MENU_BG_TRACK)
 
 def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, update_menu_record):
-  sound.change_music(BACKGROUND_TRACK)
+  theme_name: str = load_theme_name()
+  sound.change_music(f'{SOUNDS_PATH}/{theme_name}.mp3')
   game_surface = pygame.Surface((GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT))
   score_surface = pygame.Surface((SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT))
 
-  theme_name: str = load_theme_name()
-
   snake = Snake(sound.is_sound)
-  food = Food()
+  apple = Apple()
+  melon = Melon(3, THEMES[theme_name]['MELON_COLOR'], sound)
   score: int = 0
   record: int = get_record()
+  game_cycle_counter: int = 0
 
   while snake.is_alive:
     game_event_handler(snake)
     snake.move()
 
-    if snake.check_food(food.position):
+    if snake.check_food(apple.position):
       snake.grow()
-      score += food.points
-      food.new_position()
+      score += apple.points
+      apple.new_position()
 
-    draw_game(screen, game_surface, score_surface, theme_name, snake, food, score, record)
+    if melon.position:
+      if snake.check_food(melon.position):
+        snake.grow()
+        score += melon.points
+        melon.remove()
+    elif game_cycle_counter == 300:
+      melon.new_position()
+      melon.play_sound()
+      game_cycle_counter = 0
+
+    draw_game(screen, game_surface, score_surface, theme_name, snake, apple, melon, score, record)
     clock.tick(snake.speed)
+    game_cycle_counter += 1
 
   if score > record:
     save_record(score)
@@ -147,16 +160,13 @@ def main():
   pygame.display.set_caption(GAME_NAME)
   clock = pygame.time.Clock()
 
-  theme_name: str = load_theme_name()
-
   new_game_btn, switch_theme_btn, sound_btn, exit_btn = create_buttons()
   sound = Sound(MENU_BG_TRACK)
-
-  sound_btn.set_action(lambda: switch_sound(sound, sound_btn))
-
   buttons = [new_game_btn, switch_theme_btn, sound_btn, exit_btn]
 
   menu = Menu(screen, clock, sound, GAME_NAME, buttons, get_record())
+
+  sound_btn.set_action(lambda: switch_sound(sound, sound_btn))
   new_game_btn.set_action(lambda: start_game(screen, clock, sound, menu.update_record))
   switch_theme_btn.set_action(lambda: switch_theme(buttons, menu.set_theme))
 
