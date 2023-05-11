@@ -1,20 +1,24 @@
 import pygame
 
 from services import file_service
-from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, COMPLEXITY, EAT_SOUND, THEMES, SAVED_THEME_PATH
+from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, COMPLEXITY, EAT_SOUND, THEMES, SAVED_THEME_PATH, ENTER_BUTTON
 
 class Snake:
   def __init__(self, is_sound: bool, start_speed: int = COMPLEXITY):
     self.speed: int = start_speed
     self.is_alive: bool = True
     self.is_sound: bool = is_sound
+    self.lives: int = 3
 
     head: tuple[int, int] = (GAME_SURFACE_WIDTH // 2, GAME_SURFACE_HEIGHT // 2)
     self._body: list[tuple[int, int]] = [head, head]
+    self._grow_counter: int = len(self._body)
     self._direction = (0, -CELL_SIZE)
 
     self._eat_sound: pygame.mixer.Sound = pygame.mixer.Sound(EAT_SOUND)
     self._eat_sound.set_volume(0.4)
+    self._eat_tail_sound: pygame.mixer.Sound = pygame.mixer.Sound(ENTER_BUTTON)
+    self._eat_tail_sound.set_volume(0.4)
     self._theme_name = self._load_theme_name()
 
   def set_direction(self, key: int):
@@ -38,6 +42,7 @@ class Snake:
       self._eat_sound.play()
     self._body.append(self._body[-1])
     self._change_speed()
+    self._grow_counter += 1
 
   def draw(self, surface):
     for pos in self._body:
@@ -49,16 +54,24 @@ class Snake:
     return False
 
   def _change_speed(self):
-    self.speed = COMPLEXITY + len(self._body) // 5
+    self.speed = COMPLEXITY + self._grow_counter // 5
 
   def _check_collision(self):
     if (
       self._body[0][0] < 0
       or self._body[0][0] >= GAME_SURFACE_WIDTH
       or self._body[0][1] < 0
-      or self._body[0][1] >= GAME_SURFACE_HEIGHT
-      or self._body[0] in self._body[1:]):
+      or self._body[0][1] >= GAME_SURFACE_HEIGHT):
       self.is_alive = False
+
+    if self._body[0] in self._body[1:]:
+      el_index: int = self._body[1:].index(self._body[0])
+      self._body = self._body[:el_index]
+      if self.is_sound:
+        self._eat_tail_sound.play()
+      self.lives -= 1
+      if not self.lives:
+        self.is_alive = False
 
   def _load_theme_name(self) -> str:
     theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)

@@ -3,6 +3,7 @@ import pygame
 from services import file_service
 from classes import Snake, Apple, Menu, Button, Sound, Melon
 from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH
+from utils import get_heart
 
 def quit():
   pygame.mixer.music.stop()
@@ -42,11 +43,15 @@ def switch_theme(buttons: list[Button], update_menu_theme):
   for button in buttons:
     button.update_theme()
 
-def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int):
+def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int, snake_lives: int):
   font = pygame.font.Font(RETRO_FONT_PATH, 16)
-  text = font.render(f'Score: {score} / Record: {record}', True, THEMES[theme_name]['TEXT_COLOR'])
+  text: pygame.Surface = font.render(f'Score: {score} / Record: {record}', True, THEMES[theme_name]['TEXT_COLOR'])
   surface.fill(THEMES[theme_name]['SCORE_BG_COLOR'])
   surface.blit(text, (16, 16))
+
+  heart: pygame.Surface = get_heart(theme_name)
+  for i in range(snake_lives):
+    surface.blit(heart, (SCORE_SURFACE_WIDTH - (3 - i)*(40), 11))
 
 def draw_game_over(surface: pygame.Surface, theme_name: str):
   font = pygame.font.Font(RETRO_FONT_PATH, 36)
@@ -75,7 +80,7 @@ def draw_game(screen: pygame.Surface, game_surface: pygame.Surface, score_surfac
   snake.draw(game_surface)
   apple.draw(game_surface)
   melon.draw(game_surface)
-  draw_score(score_surface, theme_name, score, record)
+  draw_score(score_surface, theme_name, score, record, snake.lives)
   screen.blit(game_surface, (0, 0))
   screen.blit(score_surface, (0, WINDOW_HEIGHT - SCORE_SURFACE_HEIGHT))
   border_rect = pygame.Rect(0, GAME_SURFACE_HEIGHT, WINDOW_WIDTH, BORDER_WIDTH)
