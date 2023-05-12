@@ -5,9 +5,13 @@ from classes import Snake, Apple, Menu, Button, Sound, Melon
 from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, WALLS_COUNT
 from utils import get_heart, generate_walls
 
+is_running: bool = True
+
 def quit():
+  global is_running
+
+  is_running = False
   pygame.mixer.music.stop()
-  pygame.quit()
 
 def get_record():
   record = file_service.getTextFileByPath(LAST_SAVE_PATH)
@@ -105,6 +109,8 @@ def on_game_over(screen: pygame.Surface, theme_name: str, clock: pygame.time.Clo
   sound.change_music(MENU_BG_TRACK)
 
 def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, update_menu_record):
+  global is_running
+
   theme_name: str = load_theme_name()
   sound.change_music(f'{SOUNDS_PATH}/{theme_name}.mp3')
   game_surface = pygame.Surface((GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT))
@@ -117,9 +123,11 @@ def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, u
   melon = Melon(3, THEMES[theme_name]['MELON_COLOR'], sound)
   score: int = 0
   record: int = get_record()
-  game_cycle_counter: int = 0
+  game_loop: int = 0
 
   while snake.is_alive:
+    if not is_running:
+      return
     game_event_handler(snake)
     snake.move()
 
@@ -133,14 +141,14 @@ def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, u
         snake.grow()
         score += melon.points
         melon.remove()
-    elif game_cycle_counter == 300:
+    elif game_loop == 300:
       melon.new_position(walls)
       melon.play_sound()
-      game_cycle_counter = 0
+      game_loop = 0
 
     draw_game(screen, game_surface, score_surface, theme_name, snake, apple, melon, score, record, walls)
     clock.tick(snake.speed)
-    game_cycle_counter += 1
+    game_loop += 1
 
   if score > record:
     save_record(score)
@@ -160,9 +168,16 @@ def create_buttons() -> list[Button]:
   return [new_game_btn, switch_theme_btn, sound_btn, exit_btn]
 
 def start_menu(clock: pygame.time.Clock, menu: Menu):
-  while True:
+  global is_running
+
+  while is_running:
     menu.draw(quit)
     pygame.display.flip()
+
+    if not is_running:
+      pygame.quit()
+      return
+
     clock.tick(15)
 
 def main():
