@@ -15,8 +15,13 @@ class Food:
     if color:
       self._color = color
 
-  def new_position(self):
-    self.position = (random.randrange(0, GAME_SURFACE_WIDTH, CELL_SIZE), random.randrange(0, GAME_SURFACE_HEIGHT, CELL_SIZE))
+  def new_position(self, walls: list[tuple[int, int]] = []):
+    new_position: tuple[int, int] = (random.randrange(0, GAME_SURFACE_WIDTH, CELL_SIZE), random.randrange(0, GAME_SURFACE_HEIGHT, CELL_SIZE))
+
+    while new_position in walls:
+      new_position = (random.randrange(0, GAME_SURFACE_WIDTH, CELL_SIZE), random.randrange(0, GAME_SURFACE_HEIGHT, CELL_SIZE))
+
+    self.position = new_position
 
   def draw(self, surface):
     pygame.draw.rect(surface, self._color, (self.position[0], self.position[1], CELL_SIZE, CELL_SIZE))

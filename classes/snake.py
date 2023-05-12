@@ -4,7 +4,7 @@ from services import file_service
 from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, COMPLEXITY, EAT_SOUND, THEMES, SAVED_THEME_PATH, ENTER_BUTTON
 
 class Snake:
-  def __init__(self, is_sound: bool, start_speed: int = COMPLEXITY):
+  def __init__(self, is_sound: bool, walls: list[tuple[int, int]] = [], start_speed: int = COMPLEXITY):
     self.speed: int = start_speed
     self.is_alive: bool = True
     self.is_sound: bool = is_sound
@@ -15,11 +15,14 @@ class Snake:
     self._grow_counter: int = len(self._body)
     self._direction = (0, -CELL_SIZE)
 
+    self._walls: list[tuple[int, int]] = walls
+
+    self._theme_name = self._load_theme_name()
+
     self._eat_sound: pygame.mixer.Sound = pygame.mixer.Sound(EAT_SOUND)
     self._eat_sound.set_volume(0.4)
     self._eat_tail_sound: pygame.mixer.Sound = pygame.mixer.Sound(ENTER_BUTTON)
     self._eat_tail_sound.set_volume(0.4)
-    self._theme_name = self._load_theme_name()
 
   def set_direction(self, key: int):
     if (key == pygame.K_UP or key == pygame.K_w) and self._direction != (0, CELL_SIZE):
@@ -61,7 +64,8 @@ class Snake:
       self._body[0][0] < 0
       or self._body[0][0] >= GAME_SURFACE_WIDTH
       or self._body[0][1] < 0
-      or self._body[0][1] >= GAME_SURFACE_HEIGHT):
+      or self._body[0][1] >= GAME_SURFACE_HEIGHT
+      or self._body[0] in self._walls):
       self.is_alive = False
 
     if self._body[0] in self._body[1:]:
