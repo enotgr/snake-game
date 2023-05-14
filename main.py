@@ -2,7 +2,7 @@ import pygame
 
 from services import file_service
 from classes import Snake, Apple, Menu, Button, Sound, Melon
-from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, WALLS_COUNT
+from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, WALLS_COUNT, MAIN_ICON_PATH
 from utils import get_heart, generate_walls
 
 is_running: bool = True
@@ -183,7 +183,12 @@ def start_menu(clock: pygame.time.Clock, menu: Menu):
 def main():
   pygame.init()
   screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+  # Здесь необходимо второй раз вызвать set_mode,
+  # чтобы окно не было свернутым при запуске скомпилированного приложения в MacOS на arm64
+  pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
   pygame.display.set_caption(GAME_NAME)
+  icon: pygame.Surface = pygame.image.load(MAIN_ICON_PATH)
+  pygame.display.set_icon(icon)
   clock = pygame.time.Clock()
 
   new_game_btn, switch_theme_btn, sound_btn, exit_btn = create_buttons()
