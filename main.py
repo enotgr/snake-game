@@ -58,12 +58,19 @@ def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int
   for i in range(snake_lives):
     surface.blit(heart, (SCORE_SURFACE_WIDTH - (3 - i)*(40), 11))
 
-def draw_game_over(surface: pygame.Surface, theme_name: str):
+def draw_game_over(surface: pygame.Surface, theme_name: str, score: int):
   font = pygame.font.Font(RETRO_FONT_PATH, 36)
-  text_surf = font.render('GAME OVER', True, THEMES[theme_name]['TEXT_COLOR'])
-  text_rect = text_surf.get_rect()
+  text_surf: pygame.Surface = font.render('GAME OVER', True, THEMES[theme_name]['TEXT_COLOR'])
+  text_rect: pygame.Rect = text_surf.get_rect()
   text_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4)
   surface.blit(text_surf, text_rect)
+
+  score_font = pygame.font.Font(RETRO_FONT_PATH, 24)
+  score_text_surf: pygame.Surface = score_font.render(f'SCORE: {score}', True, THEMES[theme_name]['APPLE_COLOR'])
+  score_text_rect: pygame.Rect = score_text_surf.get_rect()
+  score_text_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 3)
+  surface.blit(score_text_surf, score_text_rect)
+
   pygame.display.flip()
 
 def switch_sound(sound: Sound, sound_btn: Button):
@@ -109,8 +116,8 @@ def draw_game(screen: pygame.Surface, game_surface: pygame.Surface, score_surfac
   pygame.draw.rect(screen, THEMES[theme_name]['BORDER_COLOR'], border_rect)
   pygame.display.flip()
 
-def on_game_over(screen: pygame.Surface, theme_name: str, clock: pygame.time.Clock, sound: Sound):
-  draw_game_over(screen, theme_name)
+def on_game_over(screen: pygame.Surface, theme_name: str, clock: pygame.time.Clock, sound: Sound, score: int):
+  draw_game_over(screen, theme_name, score)
 
   sound.play_sound(FAIL_SOUND)
   is_sound = sound.is_sound
@@ -168,7 +175,7 @@ def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, u
     save_record(score)
     update_menu_record(score)
 
-  on_game_over(screen, theme_name, clock, sound)
+  on_game_over(screen, theme_name, clock, sound, score)
 
 def create_main_buttons() -> list[Button]:
   x = WINDOW_WIDTH // 2 - BUTTON_WIDTH // 2
