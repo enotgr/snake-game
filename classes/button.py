@@ -43,8 +43,11 @@ class Button:
   def set_action(self, action):
     self.action = action
 
-  def update_theme(self):
-    self._theme_name = self._load_theme_name()
+  def update_theme(self, theme_name: str = None):
+    if theme_name:
+      self._theme_name = theme_name
+    else:
+      self._theme_name = self._load_theme_name()
 
   def _load_theme_name(self) -> str:
     theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)

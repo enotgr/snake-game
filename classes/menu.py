@@ -33,6 +33,13 @@ class Menu:
   def add_button(self, button: Button):
     self._buttons.append(button)
 
+  def set_buttons(self, buttons: list[Button]):
+    self._buttons = buttons
+    for button in self._buttons:
+      button.update_theme(self._theme_name)
+
+    self._switch_active_button(0)
+
   def update_record(self, record: int):
     self._record = record
 
@@ -45,7 +52,7 @@ class Menu:
       if event.type == pygame.QUIT:
         quit()
       elif event.type == pygame.KEYDOWN:
-        active_index = self._find_active_button_index()
+        active_index: int = self._find_active_button_index()
 
         if (event.key == pygame.K_UP or event.key == pygame.K_w):
           self._sound.play_sound(SWITCH_BUTTON)
@@ -61,15 +68,17 @@ class Menu:
           if new_index == len(self._buttons):
             new_index = 0
           self._switch_active_button(new_index)
-        elif event.key == pygame.K_RETURN:
+        elif event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
           active_button = self._buttons[active_index]
           self._sound.play_sound(ENTER_BUTTON)
           if active_button.action != None:
             active_button.action()
+        elif event.key == pygame.K_ESCAPE:
+          quit()
 
-  def _switch_active_button(self, index_active: int = 0):
+  def _switch_active_button(self, active_index: int = 0):
     for i in range(len(self._buttons)):
-      if i == index_active:
+      if i == active_index:
         self._buttons[i].select()
       else:
         self._buttons[i].deselect()
@@ -89,7 +98,7 @@ class Menu:
 
   def _draw_record(self):
     font = pygame.font.Font(RETRO_FONT_PATH, 20)
-    text_surf = font.render(f'RECORD: {self._record}', True, self._theme['TEXT_COLOR'])
+    text_surf = font.render(f'HI-SCORE: {self._record}', True, self._theme['TEXT_COLOR'])
     text_rect = text_surf.get_rect()
     text_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4 + 50)
     self._screen.blit(text_surf, text_rect)

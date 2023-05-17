@@ -1,3 +1,5 @@
+GAME_NAME = 'Retro Snake'
+
 SIZE = 600
 
 GAME_SURFACE_HEIGHT = SIZE
@@ -17,7 +19,25 @@ WINDOW_HEIGHT = GAME_SURFACE_HEIGHT + SCORE_SURFACE_HEIGHT + BORDER_WIDTH
 
 CELL_SIZE = 20
 
-COMPLEXITY = 5
-WALLS_COUNT = 5
-
-GAME_NAME = 'Retro Snake'
+DIFFICALTIES: dict[str, dict[str, int]] = {
+  'easy': {
+    'START_SPEED': 5,
+    'WALLS_COUNT': 0,
+    'REWARD': 1,
+  },
+  'normal': {
+    'START_SPEED': 10,
+    'WALLS_COUNT': 5,
+    'REWARD': 2,
+  },
+  'high': {
+    'START_SPEED': 15,
+    'WALLS_COUNT': 10,
+    'REWARD': 4,
+  },
+  'hard': {
+    'START_SPEED': 20,
+    'WALLS_COUNT': 15,
+    'REWARD': 10,
+  }
+}

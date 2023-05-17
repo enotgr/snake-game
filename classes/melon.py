@@ -13,7 +13,7 @@ class Melon(Food):
       super().draw(surface)
       self._draw_counter += 1
 
-      if self._draw_counter >= SIZE // 15:
+      if self._draw_counter >= SIZE // 10:
         self.remove()
 
   def remove(self):

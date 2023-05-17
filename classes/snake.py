@@ -1,10 +1,10 @@
 import pygame
 
 from services import file_service
-from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, COMPLEXITY, EAT_SOUND, THEMES, SAVED_THEME_PATH, ENTER_BUTTON
+from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, EAT_SOUND, THEMES, SAVED_THEME_PATH, ENTER_BUTTON, DIFFICALTIES
 
 class Snake:
-  def __init__(self, is_sound: bool, walls: list[tuple[int, int]] = [], start_speed: int = COMPLEXITY):
+  def __init__(self, is_sound: bool, walls: list[tuple[int, int]] = [], start_speed: int = DIFFICALTIES['easy']['START_SPEED']):
     self.speed: int = start_speed
     self.is_alive: bool = True
     self.is_sound: bool = is_sound
@@ -15,6 +15,7 @@ class Snake:
     self._grow_counter: int = len(self._body)
     self._direction = (0, -CELL_SIZE)
 
+    self._start_speed: int = start_speed
     self._walls: list[tuple[int, int]] = walls
 
     self._theme_name = self._load_theme_name()
@@ -57,7 +58,7 @@ class Snake:
     return False
 
   def _change_speed(self):
-    self.speed = COMPLEXITY + self._grow_counter // 5
+    self.speed = self._start_speed + self._grow_counter // 5
 
   def _check_collision(self):
     if (

@@ -2,10 +2,11 @@ import pygame
 
 from services import file_service
 from classes import Snake, Apple, Menu, Button, Sound, Melon
-from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, WALLS_COUNT, MAIN_ICON_PATH
+from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, MAIN_ICON_PATH, DIFFICALTIES
 from utils import get_heart, generate_walls
 
 is_running: bool = True
+difficalty: str = 'easy'
 
 def quit():
   global is_running
@@ -34,14 +35,14 @@ def save_theme(theme_name: str):
 
 def switch_theme(buttons: list[Button], update_menu_theme):
   theme_name: str = load_theme_name()
-  theme_keys_list: list[str] = list(THEMES.keys())
-  theme_index: int = theme_keys_list.index(theme_name)
-  next_theme_index = theme_index + 1
+  theme_keys: list[str] = list(THEMES.keys())
+  theme_index: int = theme_keys.index(theme_name)
+  next_theme_index: int = theme_index + 1
 
-  if next_theme_index >= len(theme_keys_list):
+  if next_theme_index >= len(theme_keys):
     next_theme_index = 0
 
-  next_theme_name = theme_keys_list[next_theme_index]
+  next_theme_name = theme_keys[next_theme_index]
   save_theme(next_theme_name)
   update_menu_theme(next_theme_name)
   for button in buttons:
@@ -49,7 +50,7 @@ def switch_theme(buttons: list[Button], update_menu_theme):
 
 def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int, snake_lives: int):
   font = pygame.font.Font(RETRO_FONT_PATH, 16)
-  text: pygame.Surface = font.render(f'Score: {score} / Record: {record}', True, THEMES[theme_name]['TEXT_COLOR'])
+  text: pygame.Surface = font.render(f'SCORE: {score} / HI-SCORE: {record}', True, THEMES[theme_name]['TEXT_COLOR'])
   surface.fill(THEMES[theme_name]['SCORE_BG_COLOR'])
   surface.blit(text, (16, 16))
 
@@ -59,7 +60,7 @@ def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int
 
 def draw_game_over(surface: pygame.Surface, theme_name: str):
   font = pygame.font.Font(RETRO_FONT_PATH, 36)
-  text_surf = font.render('Game Over', True, THEMES[theme_name]['TEXT_COLOR'])
+  text_surf = font.render('GAME OVER', True, THEMES[theme_name]['TEXT_COLOR'])
   text_rect = text_surf.get_rect()
   text_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4)
   surface.blit(text_surf, text_rect)
@@ -71,6 +72,19 @@ def switch_sound(sound: Sound, sound_btn: Button):
   else:
     sound_btn.set_text('Sound: Off')
   sound.switch_sound()
+
+def change_difficulty(update_difficalty_btn_text):
+  global difficalty
+
+  difficalty_keys: list[str] = list(DIFFICALTIES.keys())
+  difficalty_index: int = difficalty_keys.index(difficalty)
+  next_difficalty_index: int = difficalty_index + 1
+
+  if next_difficalty_index >= len(difficalty_keys):
+    next_difficalty_index = 0
+
+  difficalty = difficalty_keys[next_difficalty_index]
+  update_difficalty_btn_text(f'Level: {difficalty.title()}')
 
 def game_event_handler(snake: Snake):
   for event in pygame.event.get():
@@ -109,18 +123,18 @@ def on_game_over(screen: pygame.Surface, theme_name: str, clock: pygame.time.Clo
   sound.change_music(MENU_BG_TRACK)
 
 def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, update_menu_record):
-  global is_running
+  global is_running, difficalty
 
   theme_name: str = load_theme_name()
   sound.change_music(f'{SOUNDS_PATH}/{theme_name}.mp3')
   game_surface = pygame.Surface((GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT))
   score_surface = pygame.Surface((SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT))
 
-  walls: list[tuple[int, int]] = generate_walls(WALLS_COUNT)
+  walls: list[tuple[int, int]] = generate_walls(DIFFICALTIES[difficalty]['WALLS_COUNT'])
 
-  snake = Snake(sound.is_sound, walls)
-  apple = Apple()
-  melon = Melon(3, THEMES[theme_name]['MELON_COLOR'], sound)
+  snake = Snake(sound.is_sound, walls, DIFFICALTIES[difficalty]['START_SPEED'])
+  apple = Apple(DIFFICALTIES[difficalty]['REWARD'])
+  melon = Melon(3*DIFFICALTIES[difficalty]['REWARD'], THEMES[theme_name]['MELON_COLOR'], sound)
   score: int = 0
   record: int = get_record()
   game_loop: int = 0
@@ -156,16 +170,28 @@ def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, u
 
   on_game_over(screen, theme_name, clock, sound)
 
-def create_buttons() -> list[Button]:
+def create_main_buttons() -> list[Button]:
   x = WINDOW_WIDTH // 2 - BUTTON_WIDTH // 2
   y = WINDOW_HEIGHT // 2
 
   new_game_btn = Button('New Game', x, y - BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, True)
   switch_theme_btn = Button('Switch Theme', x, y, BUTTON_WIDTH, BUTTON_HEIGHT, False)
-  sound_btn = Button('Sound: Off', x, y + BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, False)
-  exit_btn = Button('Exit', x, y + 2*BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, False, quit)
+  options_btn = Button('Options', x, y + BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, False)
+  quit_btn = Button('Quit', x, y + 2*BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, False, quit)
 
-  return [new_game_btn, switch_theme_btn, sound_btn, exit_btn]
+  return [new_game_btn, switch_theme_btn, options_btn, quit_btn]
+
+def create_options_buttons() -> list[Button]:
+  global difficalty
+
+  x = WINDOW_WIDTH // 2 - BUTTON_WIDTH // 2
+  y = WINDOW_HEIGHT // 2
+
+  difficulty_btn = Button(f'Level: {difficalty.title()}', x, y - BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, True)
+  sound_btn = Button('Sound: Off', x, y, BUTTON_WIDTH, BUTTON_HEIGHT, False)
+  back_btn = Button('Back', x, y + BUTTON_MARGIN, BUTTON_WIDTH, BUTTON_HEIGHT, False)
+
+  return [difficulty_btn, sound_btn, back_btn]
 
 def start_menu(clock: pygame.time.Clock, menu: Menu):
   global is_running
@@ -181,6 +207,8 @@ def start_menu(clock: pygame.time.Clock, menu: Menu):
     clock.tick(15)
 
 def main():
+  global difficalty
+
   pygame.init()
   screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
   # Здесь необходимо второй раз вызвать set_mode,
@@ -190,16 +218,21 @@ def main():
   icon: pygame.Surface = pygame.image.load(MAIN_ICON_PATH)
   pygame.display.set_icon(icon)
   clock = pygame.time.Clock()
-
-  new_game_btn, switch_theme_btn, sound_btn, exit_btn = create_buttons()
   sound = Sound(MENU_BG_TRACK)
-  buttons = [new_game_btn, switch_theme_btn, sound_btn, exit_btn]
 
-  menu = Menu(screen, clock, sound, GAME_NAME, buttons, get_record())
+  new_game_btn, switch_theme_btn, options_btn, quit_btn = create_main_buttons()
+  difficulty_btn, sound_btn, back_btn = create_options_buttons()
+  main_buttons = [new_game_btn, switch_theme_btn, options_btn, quit_btn]
+  options_buttons = [difficulty_btn, sound_btn, back_btn]
 
-  sound_btn.set_action(lambda: switch_sound(sound, sound_btn))
+  menu = Menu(screen, clock, sound, GAME_NAME, main_buttons, get_record())
+
   new_game_btn.set_action(lambda: start_game(screen, clock, sound, menu.update_record))
-  switch_theme_btn.set_action(lambda: switch_theme(buttons, menu.set_theme))
+  switch_theme_btn.set_action(lambda: switch_theme(main_buttons, menu.set_theme))
+  options_btn.set_action(lambda: menu.set_buttons(options_buttons))
+  difficulty_btn.set_action(lambda: change_difficulty(difficulty_btn.set_text))
+  sound_btn.set_action(lambda: switch_sound(sound, sound_btn))
+  back_btn.set_action(lambda: menu.set_buttons(main_buttons))
 
   start_menu(clock, menu)
 
