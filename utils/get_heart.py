@@ -37,5 +37,5 @@ def get_heart(theme_name: str) -> pygame.Surface:
           if char == "*":
               heart_surface.set_at((x, y), THEMES[theme_name]['APPLE_COLOR'])
           if char == "#":
-            heart_surface.set_at((x, y), THEMES[theme_name]['TEXT_COLOR'])
+            heart_surface.set_at((x, y), THEMES[theme_name]['MAIN_TEXT_COLOR'])
   return heart_surface

@@ -19,7 +19,7 @@ class Menu:
   def draw(self, quit):
     self._event_handler(quit)
 
-    self._screen.fill(self._theme['BG_COLOR'])
+    self._screen.fill(self._theme['MAIN_BG_COLOR'])
     self._draw_title()
     self._draw_record()
     self._draw_theme_name()
@@ -98,7 +98,7 @@ class Menu:
 
   def _draw_record(self):
     font = pygame.font.Font(RETRO_FONT_PATH, 20)
-    text_surf = font.render(f'HI-SCORE: {self._record}', True, self._theme['TEXT_COLOR'])
+    text_surf = font.render(f'HI-SCORE: {self._record}', True, self._theme['MAIN_TEXT_COLOR'])
     text_rect = text_surf.get_rect()
     text_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4 + 50)
     self._screen.blit(text_surf, text_rect)
@@ -106,7 +106,7 @@ class Menu:
   def _draw_theme_name(self):
     font = pygame.font.Font(RETRO_FONT_PATH, 14)
     theme_title_name: str = ' '.join(self._theme_name.split('_')).title()
-    text_surf = font.render(f'Theme: {theme_title_name}', True, self._theme['BORDER_COLOR'])
+    text_surf = font.render(f'Theme: {theme_title_name}', True, self._theme['WALL_COLOR'])
     self._screen.blit(text_surf, (20, WINDOW_HEIGHT - 34))
 
   def _load_theme_name(self) -> str:

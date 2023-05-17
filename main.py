@@ -2,7 +2,7 @@ import pygame
 
 from services import file_service
 from classes import Snake, Apple, Menu, Button, Sound, Melon
-from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BORDER_WIDTH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, MAIN_ICON_PATH, DIFFICALTIES
+from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, MAIN_ICON_PATH, DIFFICALTIES
 from utils import get_heart, generate_walls
 
 is_running: bool = True
@@ -50,7 +50,7 @@ def switch_theme(buttons: list[Button], update_menu_theme):
 
 def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int, snake_lives: int):
   font = pygame.font.Font(RETRO_FONT_PATH, 16)
-  text: pygame.Surface = font.render(f'SCORE: {score} / HI-SCORE: {record}', True, THEMES[theme_name]['TEXT_COLOR'])
+  text: pygame.Surface = font.render(f'SCORE: {score} / HI-SCORE: {record}', True, THEMES[theme_name]['MAIN_TEXT_COLOR'])
   surface.fill(THEMES[theme_name]['SCORE_BG_COLOR'])
   surface.blit(text, (16, 16))
 
@@ -60,7 +60,7 @@ def draw_score(surface: pygame.Surface, theme_name: str, score: int, record: int
 
 def draw_game_over(surface: pygame.Surface, theme_name: str, score: int):
   font = pygame.font.Font(RETRO_FONT_PATH, 36)
-  text_surf: pygame.Surface = font.render('GAME OVER', True, THEMES[theme_name]['TEXT_COLOR'])
+  text_surf: pygame.Surface = font.render('GAME OVER', True, THEMES[theme_name]['MAIN_TEXT_COLOR'])
   text_rect: pygame.Rect = text_surf.get_rect()
   text_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4)
   surface.blit(text_surf, text_rect)
@@ -101,19 +101,17 @@ def game_event_handler(snake: Snake):
       snake.set_direction(event.key)
 
 def draw_game(screen: pygame.Surface, game_surface: pygame.Surface, score_surface: pygame.Surface, theme_name: str, snake: Snake, apple: Apple, melon: Melon, score: int, record: int, walls: list[tuple[int, int]]):
-  game_surface.fill(THEMES[theme_name]['BG_COLOR'])
+  game_surface.fill(THEMES[theme_name]['MAIN_BG_COLOR'])
   snake.draw(game_surface)
   apple.draw(game_surface)
   melon.draw(game_surface)
 
   for wall in walls:
-    pygame.draw.rect(game_surface, THEMES[theme_name]['BORDER_COLOR'], (wall[0], wall[1], CELL_SIZE, CELL_SIZE))
+    pygame.draw.rect(game_surface, THEMES[theme_name]['WALL_COLOR'], (wall[0], wall[1], CELL_SIZE, CELL_SIZE))
 
   draw_score(score_surface, theme_name, score, record, snake.lives)
   screen.blit(game_surface, (0, 0))
   screen.blit(score_surface, (0, WINDOW_HEIGHT - SCORE_SURFACE_HEIGHT))
-  border_rect = pygame.Rect(0, GAME_SURFACE_HEIGHT, WINDOW_WIDTH, BORDER_WIDTH)
-  pygame.draw.rect(screen, THEMES[theme_name]['BORDER_COLOR'], border_rect)
   pygame.display.flip()
 
 def on_game_over(screen: pygame.Surface, theme_name: str, clock: pygame.time.Clock, sound: Sound, score: int):
