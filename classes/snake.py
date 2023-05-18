@@ -1,7 +1,7 @@
 import pygame
 
-from services import file_service
-from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, EAT_SOUND, THEMES, SAVED_THEME_PATH, ENTER_BUTTON, DIFFICALTIES
+from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, EAT_SOUND, THEMES, ENTER_BUTTON, DIFFICALTIES
+from utils import load_theme_name
 
 class Snake:
   def __init__(self, is_sound: bool, walls: list[tuple[int, int]] = [], start_speed: int = DIFFICALTIES['easy']['START_SPEED']):
@@ -18,7 +18,7 @@ class Snake:
     self._start_speed: int = start_speed
     self._walls: list[tuple[int, int]] = walls
 
-    self._theme_name = self._load_theme_name()
+    self._theme_name = load_theme_name()
 
     self._eat_sound: pygame.mixer.Sound = pygame.mixer.Sound(EAT_SOUND)
     self._eat_sound.set_volume(0.4)
@@ -57,6 +57,9 @@ class Snake:
       return True
     return False
 
+  def get_body(self) -> list[tuple[int, int]]:
+    return self._body
+
   def _change_speed(self):
     self.speed = self._start_speed + self._grow_counter // 5
 
@@ -77,9 +80,3 @@ class Snake:
       self.lives -= 1
       if not self.lives:
         self.is_alive = False
-
-  def _load_theme_name(self) -> str:
-    theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
-    if theme_name:
-      return theme_name
-    return list(THEMES.keys())[0]

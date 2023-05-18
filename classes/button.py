@@ -1,7 +1,7 @@
 import pygame
 
-from consts import RETRO_FONT_PATH, THEMES, SAVED_THEME_PATH
-from services import file_service
+from consts import RETRO_FONT_PATH, THEMES
+from utils import load_theme_name
 
 class Button:
   def __init__(self, text: str, x: int, y: int, width: int, height: int, active: bool = False, action = None):
@@ -14,7 +14,7 @@ class Button:
     self._width: int = width
     self._height: int = height
 
-    self._theme_name: str = self._load_theme_name()
+    self._theme_name: str = load_theme_name()
 
   def draw(self, surface: pygame.Surface):
     button_surface = pygame.Surface((self._width, self._height))
@@ -47,10 +47,4 @@ class Button:
     if theme_name:
       self._theme_name = theme_name
     else:
-      self._theme_name = self._load_theme_name()
-
-  def _load_theme_name(self) -> str:
-    theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
-    if theme_name:
-      return theme_name
-    return list(THEMES.keys())[0]
+      self._theme_name = load_theme_name()

@@ -3,7 +3,7 @@ import pygame
 from services import file_service
 from classes import Snake, Apple, Menu, Button, Sound, Melon
 from consts import WINDOW_WIDTH, WINDOW_HEIGHT, GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT, SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT, RETRO_FONT_PATH, LAST_SAVE_PATH, BUTTON_MARGIN, BUTTON_HEIGHT, BUTTON_WIDTH, GAME_NAME, MENU_BG_TRACK, SOUNDS_PATH, FAIL_SOUND, THEMES, SAVED_THEME_PATH, CELL_SIZE, MAIN_ICON_PATH, DIFFICALTIES
-from utils import get_heart, generate_walls
+from utils import get_heart, generate_walls, load_theme_name
 
 is_running: bool = True
 difficalty: str = 'easy'
@@ -19,13 +19,6 @@ def get_record():
   if record:
     return int(record)
   return 0
-
-# TODO: create util
-def load_theme_name() -> str:
-  theme_name: str = file_service.getTextFileByPath(SAVED_THEME_PATH)
-  if theme_name:
-    return theme_name
-  return list(THEMES.keys())[0]
 
 def save_record(score: int):
   file_service.saveTextFile(str(score), LAST_SAVE_PATH)
@@ -153,7 +146,7 @@ def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, u
     if snake.check_food(apple.position):
       snake.grow()
       score += apple.points
-      apple.new_position(walls)
+      apple.new_position(walls + snake.get_body())
 
     if melon.position:
       if snake.check_food(melon.position):
@@ -161,7 +154,7 @@ def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, u
         score += melon.points
         melon.remove()
     elif game_loop == 300:
-      melon.new_position(walls)
+      melon.new_position(walls + snake.get_body())
       melon.play_sound()
       game_loop = 0
 
