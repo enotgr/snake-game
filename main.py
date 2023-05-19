@@ -128,7 +128,7 @@ def start_game(screen: pygame.Surface, clock: pygame.time.Clock, sound: Sound, u
   game_surface = pygame.Surface((GAME_SURFACE_WIDTH, GAME_SURFACE_HEIGHT))
   score_surface = pygame.Surface((SCORE_SURFACE_WIDTH, SCORE_SURFACE_HEIGHT))
 
-  walls: list[tuple[int, int]] = generate_walls(DIFFICALTIES[difficalty]['WALLS_COUNT'])
+  walls: list[tuple[int, int]] = generate_walls(difficalty)
 
   snake = Snake(sound.is_sound, walls, DIFFICALTIES[difficalty]['START_SPEED'])
   apple = Apple(DIFFICALTIES[difficalty]['REWARD'])
