@@ -1,13 +1,15 @@
 import random
 
-from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE
+from consts import GAME_SURFACE_HEIGHT, GAME_SURFACE_WIDTH, CELL_SIZE, DIFFICALTIES
 
 HORIZONTAL_CELLS_COUNT = GAME_SURFACE_WIDTH // CELL_SIZE
 VERTICAL_CELLS_COUNT = GAME_SURFACE_HEIGHT // CELL_SIZE
 
-def generate_random_walls(wall_count: int = 10) -> list[tuple[int, int]]:
+def generate_random_walls(level: str = 'easy') -> list[tuple[int, int]]:
+  walls_count = DIFFICALTIES[level]['WALLS_COUNT']
   walls = []
-  for _ in range(wall_count):
+
+  for _ in range(walls_count):
     wall_x = random.randint(1, HORIZONTAL_CELLS_COUNT - 2)
     wall_y = random.randint(1, VERTICAL_CELLS_COUNT - 2)
     while (wall_x, wall_y) in walls:
@@ -16,7 +18,7 @@ def generate_random_walls(wall_count: int = 10) -> list[tuple[int, int]]:
     walls.append((wall_x*CELL_SIZE, wall_y*CELL_SIZE))
   return walls
 
-def generate_walls(level: str) -> list[tuple[int, int]]:
+def generate_walls(level: str = 'easy') -> list[tuple[int, int]]:
   walls: list[tuple[int, int]] = []
 
   center_x = HORIZONTAL_CELLS_COUNT // 2
@@ -40,7 +42,7 @@ def generate_walls(level: str) -> list[tuple[int, int]]:
   elif level == 'hard':
     for i in range(9):
       walls.append(((center_x - i + 4)*CELL_SIZE, center_y*CELL_SIZE))
-    for i in range(9):
+
       walls.append(((center_x - 9)*CELL_SIZE, (center_y - i + 4)*CELL_SIZE))
       walls.append(((center_x - 4)*CELL_SIZE, (center_y - i + 4)*CELL_SIZE))
       walls.append(((center_x + 9)*CELL_SIZE, (center_y - i + 4)*CELL_SIZE))
